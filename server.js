@@ -5,7 +5,9 @@ var conf = require('config');
 
 var builder = require('./core/builder');
 var base = builder
+  .conf(conf)
   .app(express, app)
+  .modules(conf.modules)
   .build();
 
 base.app.listen(conf.server.port);
