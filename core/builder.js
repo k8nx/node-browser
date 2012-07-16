@@ -38,7 +38,7 @@ Builder.prototype.modules = function(modules) {
     logger.error(conf == null ? 'conf':'app', 'is not set.');
     process.exit(2);
   }
-  if (modules == null || modules.length > 0) {
+  if (modules != null && modules.length > 0) {
     for (var i in modules) {
       require('../_modules/'+modules[i])(this.base);
     }
