@@ -1,0 +1,267 @@
+<style type="text/css">
+span.row-extra { float: right; }
+.box { float: left; border-radius: 5px; margin-bottom: 10px; }
+
+.feedbacks .feedback .avatar { float: left; margin-right: 6px; width: 30px; }
+.feedbacks .feedback .avatar img { width: 30px; height: 30px; }
+.feedbacks .feedback p { line-height: 15px; font-size: 12px; height: 30px; margin: 0 0 0 36px; }
+</style>
+<div class="row">
+  <div class="span18">
+    <h1><%= package.name %></h1>
+    <p class="lead"><%= package.description %></p>
+  </div>
+  <div class="span18">
+    <div class="tabbable">
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#pkg-summary" data-toggle="tab">Summary</a></li>
+        <li class=""><a href="#pkg-files" id="files-link" data-toggle="tab">Files</a></li>
+<% if (package.github) { %>
+        <li class=""><a href="#pkg-commits" id="commits-link" data-toggle="tab">Commits</a></li>
+<% } %>
+        <li class=""><a href="#pkg-versions" data-toggle="tab">Versions</a></li>
+        <li class=""><a href="#pkg-followers" data-toggle="tab">Followers</a></li>
+        <li class=""><a href="#pkg-depend" data-toggle="tab">Dependencies</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active" id="pkg-summary">
+          <div class="row">
+          <div class="span4">
+          <a class="btn btn-large" data-toggle="follow-btn" data-object="<%=package.id %>">Follow</a>
+          <% if (package.github) { %>
+          <div style="padding: 10px 0">
+            <iframe class="github-btn" src="http://markdotto.github.com/github-buttons/github-btn.html?user=<%=package.github.username %>&amp;repo=<%=package.github.repo %>&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+            <iframe class="github-btn" src="http://markdotto.github.com/github-buttons/github-btn.html?user=<%=package.github.username %>&amp;repo=<%=package.github.repo %>&amp;type=fork&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+          </div>
+          <% } %>
+          </div>
+          <div class="span12">
+          <table class="table table-striped">
+          <colgroup>
+            <col class="span3" />
+          </colgroup>
+          <tbody>
+          <tr><th>Latest Version:</th><td><%=package.dist.latest %></td></tr>
+          <tr><th>Web:</th><td><%=package.homepage||'' %></td></tr>
+          <!--<tr><th>Download:</th><td></td></tr>-->
+          <tr><th>Source:</th><td>
+          <% if (package.repository.type == 'git') { %>
+          git clone <%=package.repository.url %>
+          <% } else { %>
+            <%=package.repository.url||'' %></a>
+          <% } %>
+          </td></tr>
+          <tr>
+            <th>Keywords:</th>
+            <td><% for (var i in current.keywords) { var keyword = current.keywords[i]; %><a href="/<%=package.lang%>?q=keywords%3A<%=keyword %>"><span class="label label-important"><%=keyword %></span></a> <% } %>
+            </td></tr>
+          </tbody>
+          </table>
+          </div>
+          </div>
+          <div id="pkg-summary-content"><%-current.readme||'No README or has not been downloaded yet.' %></div>
+        </div>
+        <script type="text/javascript">var h = $("#pkg-summary-content").html(); if (h.indexOf("<li>") == -1 || h.indexOf("<h") == -1) $("#pkg-summary-content").replaceWith('<div id="pkg-summary-content"><pre><code>'+h+'</code></pre></div>');</script>
+
+        <div class="tab-pane" id="pkg-depend">
+          <ul class="thumbnails">
+          <% for (var i in current.dependencies) { var depend = current.dependencies[i]; %>
+            <li class="span4" style="height: 110px;">
+            <div class="thumbnail">
+              <div class="caption">
+              <h3><a href="/<%=package.lang+'/'+depend.name %>"><%= depend.name %></a></h3>
+              <p><%=depend.description||'' %></p>
+              </div>
+            </div>
+            </li>
+          <% } %>
+          </ul>
+        </div>
+        <div class="tab-pane row" id="pkg-followers">
+        </div>
+        <div class="tab-pane row" id="pkg-files">
+          <div class="span4">
+          <ul>
+            <li id="pkg-root"><a href="#">ROOT</a></li>
+          </ul>
+          </div>
+          <div class="span14">
+            <pre><code id="pkg-files-content"></code></pre>
+          </div>
+          <script type="text/javascript">
+            function getTree($this) {
+              var path = $this.data('path');
+              $.ajax({
+                type: 'GET', url: 'http://api.geekple.com/v1/<%=package.id %>/<%=current.version %>/tree'+path
+                , success: function(text) {
+                  var json = null;
+                  try {
+                    json = eval("("+text+")");
+                    var node = $this.siblings();
+                    if (node.length == 0 && json && json.tree && json.tree.length >= 0) {
+                      addNode($this, json);
+                    } else {
+                      $("#pkg-files-content").text(text);
+                    }
+                  } catch (e) {
+                    $("#pkg-files-content").text(text);
+                  }
+                }
+              });
+            };
+            function addNode(link, json) {
+              var parent = $(link).parent();
+              var list = $('<ul />');
+              for (var i in json.tree) {
+                var path = link.data('path')+'/'+json.tree[i].path;
+                list.append($('<li />').append(
+                  $('<a />')
+                    .text(json.tree[i].path)
+                    .data('path', path)
+                    .on('click', function(e) {
+                      getTree($(this));
+                      return false;
+                    })
+                ));
+              }
+              parent.append(list);
+            };
+            $("#pkg-root > a").on("click", function(e) {
+              getTree($(this).data('path', ''));
+              return false;
+            });
+          </script>
+        </div>
+        <div class="tab-pane row" id="pkg-commits">
+        </div>
+        <div class="tab-pane" id="pkg-versions">
+          <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>Version</th>
+            <th>Download</th>
+            <th>Published Date</th>
+          </tr>
+          </thead>
+          <tbody>
+<% for (var i in package.versions) { var version = package.versions[i]; %>
+          <tr>
+            <td><a href="/<%=package.id+'/'+version.version %>"><%= version.version||'' %></a></td>
+            <td><a href="<%= version.dist||'' %>">Download</a></td>
+            <td><%= version.created_at||'' %></td>
+          </tr>
+<% } %>
+          </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+  if (location.hash) {
+    $("a[href='"+location.hash+"']").trigger('click');
+  }
+  $("a[data-toggle=tab]").on("shown", function() {
+    History.pushState(null, null, this.href);
+  });
+});
+<% if (package && package.github) { %>
+function createFeedback(user, datetime, comment) {
+  var feedback = $('<div class="feedback" />')
+    .append($('<a class="avatar" href="#" />')
+      .append($('<img />').attr('src', user.avatar_url)))
+    .append($('<p />')
+      .append($('<a />').attr('href', user.url).text(user.name))
+      .append($('<span />').text(' ' + datetime ? prettyDate(datetime):''))
+    );
+  return feedback;
+};
+
+function createBox(title, description, feedbacks) {
+  var box = $('<div class="box span6"><div class="thumbnail" style="line-height: 22px; margin-bottom: 10px;"></div></div>');
+  var inner = $('<div class="caption" />')
+      .append($('<h4 />').append(title))
+      .append(description)
+      .append($('<div class="feedbacks" />')
+        .append($('<div class="feedback" />'))
+      )
+      .append($('<div class="append" />'));
+  box.find('div').append(inner);
+  for (var i in feedbacks) {
+    inner.find('.feedback').append(feedbacks[i]);
+  }
+  return box;
+};
+
+$("#pkg-commits").masonry({itemSelector: '.box'});
+$("#pkg-followers").masonry({itemSelector: '.box'});
+function commits(json) {
+  for (var i in json.data) {
+    var row = json.data[i];
+    if (row.commit == null) {
+      continue;
+    }
+    var author = {name: ''};
+    if (!row.author) {
+      author.url = '';
+      author.avatar_url = '';
+    } else {
+      author.url = 'http://github.com/'+row.author.login;
+      author.avatar_url = row.author.avatar_url;
+    }
+    author.name = row.commit.author.name;
+    var url = (row.url||'').replace('api.github.com', 'github.com').replace('/repos/', '/').replace('/commits/', '/commit/');
+    var title = $('<a />').attr('href', url).text(row.commit.message.split('\n')[0]);
+    var description = $('<pre />').append($('<code />').text(row.commit.message));
+    var box = createBox(title, description, [createFeedback(author, row.commit.committer.date, '')]);
+    $("#pkg-commits").append(box);
+  }
+  render("#pkg-commits");
+}
+
+function render(container) {
+  if ($(container+":visible").length == 1) {
+    $(container).masonry('appended', $(container), false);
+    $(container).masonry('reload');
+  }
+  $("a[data-toggle=tab]").on("click", function() {
+    var $this = $(this);
+    if ($this.attr("href") == container) {
+      $($this.attr("href")).imagesLoaded(function() {
+        $(container).masonry('appended', $(container), false);
+        $(container).masonry('reload');
+      });
+    }
+  });
+};
+
+$(function() {
+  $.ajax({
+    url: 'http://api.geekple.com/v1/subscriber/<%=package.id %>'
+    , dataType: 'json'
+    , success: function(json) {
+      for (var i in json) {
+        var row = json[i];
+        if (row == null) {
+          continue;
+        }
+        var user = {
+          avatar_url: row.image||(row.user&&row.user.profile_image)
+          , name: row.user&&row.user.username
+          , url: ''
+        };
+        var box = createBox($('<a />').attr('href', row.url).text((row.class||'')+': '+row.name), $('<p />').text(row.description), [
+          createFeedback(user, '', '')
+        ]);
+        $("#pkg-followers").append(box);
+      }
+      render("#pkg-followers");
+    }
+  });
+});
+var cs = document.createElement('script'); cs.type = 'text/javascript'; cs.async = true; cs.src = 'https://api.github.com/repos/<%=package.github.username %>/<%=package.github.repo %>/commits?callback=commits'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(cs, s);
+<% } %>
+</script>
