@@ -1,0 +1,20 @@
+server:
+  port: 31659
+
+common:
+  homepage: '/'
+  static: 'http://geekple.com/static/'
+
+view:
+  engine: 'ejs'
+
+cookie:
+  secret: '!afjiejfoijoaz(@#!#V'
+  domain: '$cookie_domain'
+  expire: 2592000000
+  store:
+    name: 'redis'
+    args: [6379, '$redis_host', 0]
+
+api:
+  baseURL: 'http://api.geekple.com'
