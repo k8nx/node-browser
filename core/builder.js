@@ -28,6 +28,8 @@ Builder.prototype.app = function(connect, app) {
   app.use(connect.bodyParser());
   app.use(connect.methodOverride());
   app.use(app.router);
+
+  app.set('view engine', conf.view.engine);
   return this;
 };
 
