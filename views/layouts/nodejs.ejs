@@ -1,0 +1,91 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://ogp.me/ns/fb#">
+<head>
+<title>NodeJS Package Browser</title>
+<meta property="fb:app_id" content="151724738254377" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" type="image/x-icon" href="http://geekple.com/nodejs/favicon.ico" />
+<link rel="stylesheet" type="text/css" href="http://geekple.com/static/themes/simplex/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="http://geekple.com/static/bs2/css/doc.css" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://geekple.com/static/knockout-2.0.0.js"></script>
+<script type="text/javascript" src="http://geekple.com/static/history.js"></script>
+<script type="text/javascript" src="http://geekple.com/static/bs2/js/bootstrap.plugins.min.js"></script>
+<style type="text/css">
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700);
+* {
+  font-family: 'Open Sans', sans-serif;
+}
+
+span.row-extra { float: right; }
+.box { float: left; border-radius: 5px; margin-bottom: 10px; }
+
+.feedbacks .feedback .avatar { float: left; margin-right: 6px; width: 30px; }
+.feedbacks .feedback .avatar img { width: 30px; height: 30px; }
+.feedbacks .feedback p { line-height: 15px; font-size: 12px; height: 30px; margin: 0 0 0 36px; }
+
+</style>
+<script type="text/javascript">
+document.domain = 'geekple.com';
+</script>
+</head>
+<body>
+<div id="fb-root"></div>
+<iframe tabindex="-1" role="presentation" style="position:absolute;top:-9999px;" src="http://api.geekple.com/receiver.html"></iframe>
+<div class="navbar navbar-fixed-top">
+<div class="navbar-inner">
+<div class="container">
+  <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </a>
+  <a class="brand" href="/">Geek+Ple</a>
+  <div class="nav-collapse">
+    <ul class="nav">
+      <li><a href="/nodejs">Home</a></li>
+      <li><a href="/api/docs">API (DRAFT)</a></li>
+    </ul>
+    <ul class="nav pull-right">
+      <% if (session.user && session.user.id > 0) { %>
+      <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+      <img src="<%= session.user.profile_image %>" width="19" height="19" style="position: absolute;" />
+      <span style="padding-left: 24px"><%= session.user.username %></span></a>
+      <ul class="dropdown-menu">
+        <li><a href="/user/profile?id=<%= session.user.uid %>">Profile</a></li>
+        <li><a href="/logout">Sign out</a></li>
+      </ul>
+      </li>
+      <% } else { %>
+      <li><a href="/login">Sign in with github</a></li>
+      <% } %>
+    </ul>
+  </div>
+</div>
+</div>
+</div>
+<div class="container" style="margin-top: 50px">
+<%-body %>
+</div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=151724738254377";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-29569482-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<script type="text/javascript" src="http://geekple.com/static/geekple.js"></script>
+</body>
+</html>
