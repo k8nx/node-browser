@@ -27,9 +27,24 @@ Builder.prototype.app = function(connect, app) {
   }));
   app.use(connect.bodyParser());
   app.use(connect.methodOverride());
-  app.use(app.router);
 
+  var userAPI = require('./user')(conf);
+
+  app.use(function(req, res, next) {
+    app._locals = app._locals || {};
+    app._locals.session = req.session;
+    next();
+  });
+
+  app.use(function(req, res, next) {
+    userAPI.load(req.session, function(err, user) {
+      req.session.user = user;
+      next();
+    });
+  });
+  app.use(app.router);
   app.set('view engine', conf.view.engine);
+
   return this;
 };
 
